@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Report Found Item{% endblock %}
+
+{% block content %}
+<div style="max-width: 680px; margin: 1.5rem auto;">
+  <div class="form-card">
+    <div style="margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+      <span class="badge badge-found" style="font-size: 0.8rem; margin-bottom: 0.5rem;">Found Report</span>
+      <h2 style="font-size: 1.85rem; font-weight: 800; color: var(--text-main);">Report a Found Item</h2>
+      <p style="color: var(--text-muted); font-size: 0.925rem;">
+        Did you pick up or locate something someone lost? Record it here to help the rightful owner find and reclaim it.
+      </p>
+    </div>
+
+    <form action="{{ url_for('report_found') }}" method="POST" enctype="multipart/form-data">
+      <div class="form-group">
+        <label for="item_name" class="form-label">Item Name / Summary *</label>
+        <input type="text" id="item_name" name="item_name" class="form-control" placeholder="e.g. Casio fx-991EX Scientific Calculator" required>
+        <div class="form-help">Enter a concise title describing what you discovered.</div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label for="category" class="form-label">Category *</label>
+          <select id="category" name="category" class="form-control" required>
+            <option value="" disabled selected>Select category...</option>
+            <option value="Electronics">Electronics (Laptops, Phones, Earbuds)</option>
+            <option value="Bags & Wallets">Bags &amp; Wallets</option>
+            <option value="Books & Notes">Books &amp; Notes</option>
+            <option value="ID & Cards">ID &amp; Access Cards</option>
+            <option value="Clothing">Clothing &amp; Apparel</option>
+            <option value="Keys">Keys</option>
+            <option value="Others">Others</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="date" class="form-label">Date Found *</label>
+          <input type="date" id="date" name="date" class="form-control" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="location" class="form-label">Found Location *</label>
+        <input type="text" id="location" name="location" class="form-control" placeholder="e.g. Main Auditorium Row 4 Seat 12" required>
+        <div class="form-help">Where was the item recovered on campus?</div>
+      </div>
+
+      <div class="form-group">
+        <label for="description" class="form-label">Item Details &amp; Condition *</label>
+        <textarea id="description" name="description" class="form-control" rows="4" placeholder="Describe the item condition, distinctive marks, or where it can be claimed." required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="image" class="form-label">Optional Photo Upload</label>
+        <input type="file" id="image" name="image" class="form-control" accept="image/*" data-preview="found-image-preview">
+        <div class="form-help">Photos greatly increase the chances of fast verification.</div>
+        <div id="found-image-preview"></div>
+      </div>
+
+      <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+        <button type="submit" class="btn btn-success btn-lg" style="flex: 2;">
+          Submit Found Report
+        </button>
+        <a href="{{ url_for('index') }}" class="btn btn-secondary btn-lg" style="flex: 1;">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block title %}Search &amp; Filter Reports{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+  <h1 style="font-size: 2rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">
+    Search Campus Reports
+  </h1>
+  <p style="color: var(--text-muted); font-size: 0.95rem;">
+    Powered by manual DSA algorithms: <strong>Linear Search</strong>, <strong>Binary Search</strong>, and 
+    <strong>Bubble / Insertion / Selection Sort</strong>.
+  </p>
+</div>
+
+<!-- Search & DSA Filter Control Panel -->
+<div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 2rem; box-shadow: var(--shadow-sm);">
+  <form action="{{ url_for('search') }}" method="GET">
+    <!-- Row 1: Query & Type -->
+    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+      <div>
+        <label class="form-label">Keyword or Target Item ID</label>
+        <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Search keywords (e.g. laptop, wallet) or Item ID...">
+      </div>
+
+      <div>
+        <label class="form-label">Report Type</label>
+        <select name="type" class="form-control">
+          <option value="">All Types (Lost &amp; Found)</option>
+          <option value="Lost" {% if report_type == 'Lost' %}selected{% endif %}>Lost Items Only</option>
+          <option value="Found" {% if report_type == 'Found' %}selected{% endif %}>Found Items Only</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="form-label">Category</label>
+        <select name="category" class="form-control">
+          <option value="">All Categories</option>
+          <option value="Electronics" {% if category == 'Electronics' %}selected{% endif %}>Electronics</option>
+          <option value="Bags & Wallets" {% if category == 'Bags & Wallets' %}selected{% endif %}>Bags &amp; Wallets</option>
+          <option value="Books & Notes" {% if category == 'Books & Notes' %}selected{% endif %}>Books &amp; Notes</option>
+          <option value="ID & Cards" {% if category == 'ID & Cards' %}selected{% endif %}>ID &amp; Cards</option>
+          <option value="Clothing" {% if category == 'Clothing' %}selected{% endif %}>Clothing</option>
+          <option value="Keys" {% if category == 'Keys' %}selected{% endif %}>Keys</option>
+          <option value="Others" {% if category == 'Others' %}selected{% endif %}>Others</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Row 2: Location & DSA Algorithm Options -->
+    <div style="display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+      <div>
+        <label class="form-label">Campus Location Filter</label>
+        <input type="text" name="location" value="{{ location }}" class="form-control" placeholder="e.g. Library, Lab 3, Cafeteria">
+      </div>
+
+      <div>
+        <label class="form-label" style="color:var(--primary); font-weight:700;">🔍 Search Algorithm</label>
+        <select name="search_algo" class="form-control" style="border-color:#93c5fd;">
+          <option value="linear" {% if search_algo == 'linear' %}selected{% endif %}>Linear Search (Keywords)</option>
+          <option value="binary" {% if search_algo == 'binary' %}selected{% endif %}>Binary Search (by Item ID)</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="form-label" style="color:var(--accent); font-weight:700;">⚡ Sorting Algorithm</label>
+        <select name="sort_algo" class="form-control" style="border-color:#c4b5fd;">
+          <option value="bubble" {% if sort_algo == 'bubble' %}selected{% endif %}>Bubble Sort</option>
+          <option value="insertion" {% if sort_algo == 'insertion' %}selected{% endif %}>Insertion Sort</option>
+          <option value="selection" {% if sort_algo == 'selection' %}selected{% endif %}>Selection Sort</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="form-label">Sort Key &amp; Order</label>
+        <div style="display: flex; gap: 0.5rem;">
+          <select name="sort_key" class="form-control" style="flex: 2;">
+            <option value="date" {% if sort_key == 'date' %}selected{% endif %}>Date</option>
+            <option value="item_name" {% if sort_key == 'item_name' %}selected{% endif %}>Item Name</option>
+            <option value="item_id" {% if sort_key == 'item_id' %}selected{% endif %}>Item ID</option>
+          </select>
+          <select name="sort_order" class="form-control" style="flex: 1.2;">
+            <option value="desc" {% if sort_order == 'desc' %}selected{% endif %}>Desc</option>
+            <option value="asc" {% if sort_order == 'asc' %}selected{% endif %}>Asc</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+      <a href="{{ url_for('search') }}" class="btn btn-secondary">Reset Filters</a>
+      <button type="submit" class="btn btn-primary" style="padding-left: 2rem; padding-right: 2rem;">
+        Apply Search &amp; Sort
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- DSA Performance Telemetry Banner -->
+<div style="background: #0f172a; color: #e2e8f0; border-radius: var(--radius-md); padding: 1rem 1.5rem; margin-bottom: 2rem; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; border-left: 5px solid var(--primary);">
+  <div style="display: flex; align-items: center; gap: 0.75rem;">
+    <span style="font-size: 1.5rem;">⚙️</span>
+    <div>
+      <div style="font-size: 0.85rem; color: #94a3b8; font-weight: 600; text-transform: uppercase;">DSA Execution Benchmark</div>
+      <div style="font-size: 1.05rem; font-weight: 700;">
+        Search: <span style="color:#38bdf8;">{{ search_metrics.search_algo }}</span> |
+        Sort: <span style="color:#a78bfa;">{{ sort_metrics.sort_algo }} (by {{ sort_metrics.sort_key }})</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 1.25rem; flex-wrap: wrap; font-size: 0.85rem;">
+    <div>Search Comparisons: <strong style="color:#34d399;">{{ search_metrics.search_comparisons }}</strong></div>
+    <div>Sort Comparisons: <strong style="color:#f59e0b;">{{ sort_metrics.sort_comparisons }}</strong></div>
+    <div>Sort Swaps/Shifts: <strong style="color:#f43f5e;">{{ sort_metrics.sort_swaps }}</strong></div>
+    <div>Total DSA Compute: <strong style="color:#38bdf8;">{{ (search_metrics.search_time_ms + sort_metrics.sort_time_ms)|round(4) }} ms</strong></div>
+  </div>
+</div>
+
+<!-- Results Header -->
+<div class="section-header">
+  <div>
+    <h2 class="section-title">Results Found: {{ total_found }}</h2>
+  </div>
+</div>
+
+<!-- Items Grid -->
+{% if items %}
+  <div class="items-grid">
+    {% for item in items %}
+      <div class="item-card">
+        <div class="item-card-image">
+          {% if item.image_path %}
+            <img src="{{ url_for('uploaded_file', filename=item.image_path) }}" alt="{{ item.item_name }}">
+          {% else %}
+            <div class="item-placeholder-icon">
+              {% if item.category == 'Electronics' %}💻
+              {% elif item.category == 'Bags & Wallets' %}👛
+              {% elif item.category == 'Books & Notes' %}📚
+              {% elif item.category == 'ID & Cards' %}🪪
+              {% else %}📦{% endif %}
+            </div>
+          {% endif %}
+          
+          <div class="item-card-badge">
+            {% if item.report_type == 'Lost' %}
+              <span class="badge badge-lost">Lost</span>
+            {% else %}
+              <span class="badge badge-found">Found</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="item-card-body">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+            <span class="item-category">{{ item.category }}</span>
+            <span style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">ID: #{{ item.item_id }}</span>
+          </div>
+
+          <h3 class="item-title">{{ item.item_name }}</h3>
+          <p class="item-desc">{{ item.description }}</p>
+
+          <div class="item-meta">
+            <div class="item-meta-row">
+              <span>📍 Location:</span>
+              <strong>{{ item.location }}</strong>
+            </div>
+            <div class="item-meta-row">
+              <span>📅 Date:</span>
+              <span>{{ item.date }}</span>
+            </div>
+            <div class="item-meta-row">
+              <span>Status:</span>
+              <span class="badge {% if item.status == 'Pending' %}badge-pending{% elif item.status == 'Claimed' %}badge-claimed{% else %}badge-resolved{% endif %}">
+                {{ item.status }}
+              </span>
+            </div>
+          </div>
+
+          <a href="{{ url_for('item_details', item_id=item.item_id) }}" class="btn btn-outline btn-sm" style="width:100%;">
+            View Details &amp; Contact Reporter
+          </a>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div style="background:var(--bg-surface); padding:3.5rem; border-radius:var(--radius-lg); text-align:center; border:1px solid var(--border-color);">
+    <div style="font-size: 3rem; margin-bottom: 1rem;">🔍</div>
+    <h3 style="font-size: 1.35rem; font-weight: 700; margin-bottom: 0.5rem;">No matching reports found</h3>
+    <p style="color:var(--text-muted); max-width: 480px; margin: 0 auto 1.5rem auto;">
+      Try broadening your search query or reset your filters to view all active reports.
+    </p>
+    <a href="{{ url_for('search') }}" class="btn btn-primary">Reset All Filters</a>
+  </div>
+{% endif %}
+{% endblock %}

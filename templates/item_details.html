@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}{{ item.item_name }} - Details{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 1.5rem;">
+  <a href="javascript:history.back()" class="btn btn-outline btn-sm">&larr; Back to Listings</a>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;">
+  <!-- Left Column: Item Overview & Photo -->
+  <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 2rem; box-shadow: var(--shadow-sm);">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+      <div>
+        <span class="badge {% if item.report_type == 'Lost' %}badge-lost{% else %}badge-found{% endif %}" style="font-size: 0.85rem; margin-bottom: 0.5rem;">
+          {{ item.report_type }} Report
+        </span>
+        <h1 style="font-size: 2.2rem; font-weight: 800; color: var(--text-main); line-height: 1.2;">
+          {{ item.item_name }}
+        </h1>
+      </div>
+
+      <span class="badge {% if item.status == 'Pending' %}badge-pending{% elif item.status == 'Claimed' %}badge-claimed{% else %}badge-resolved{% endif %}" style="font-size: 0.85rem; padding: 0.45rem 1rem;">
+        Status: {{ item.status }}
+      </span>
+    </div>
+
+    <!-- Image Display -->
+    <div style="background: var(--bg-subtle); border-radius: var(--radius-md); overflow: hidden; margin-bottom: 1.5rem; max-height: 400px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color);">
+      {% if item.image_path %}
+        <img src="{{ url_for('uploaded_file', filename=item.image_path) }}" alt="{{ item.item_name }}" style="max-height: 400px; width: 100%; object-fit: contain;">
+      {% else %}
+        <div style="padding: 4rem; text-align: center; color: var(--text-light);">
+          <div style="font-size: 4rem; margin-bottom: 0.5rem;">📷</div>
+          <div>No photo uploaded for this item.</div>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Description -->
+    <div style="margin-bottom: 2rem;">
+      <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.75rem;">Item Description</h3>
+      <div style="background: var(--bg-subtle); padding: 1.25rem; border-radius: var(--radius-md); color: var(--text-main); font-size: 0.95rem; white-space: pre-line; line-height: 1.6; border: 1px solid var(--border-color);">
+        {{ item.description }}
+      </div>
+    </div>
+
+    <!-- Key Attributes Grid -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+      <div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Category</div>
+        <div style="font-size: 1.05rem; font-weight: 700; color: var(--primary);">{{ item.category }}</div>
+      </div>
+      <div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Campus Location</div>
+        <div style="font-size: 1.05rem; font-weight: 700;">{{ item.location }}</div>
+      </div>
+      <div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Date Recorded</div>
+        <div style="font-size: 1.05rem; font-weight: 700;">{{ item.date }}</div>
+      </div>
+      <div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Report ID</div>
+        <div style="font-size: 1.05rem; font-weight: 700; font-family: var(--font-mono);">#{{ item.item_id }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Column: Contact Student, Status Action, and DSA Telemetry -->
+  <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+    <!-- Contact Student Box -->
+    <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.5rem; box-shadow: var(--shadow-sm);">
+      <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span>👤</span> Reporter Information
+      </h3>
+
+      <div style="font-size: 0.9rem; display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.25rem;">
+        <div>
+          <span style="color: var(--text-muted);">Name:</span>
+          <strong>{{ item.reporter_name }}</strong>
+        </div>
+        <div>
+          <span style="color: var(--text-muted);">Student ID:</span>
+          <span style="font-family: var(--font-mono); font-weight: 600;">{{ item.reporter_student_id }}</span>
+        </div>
+        <div>
+          <span style="color: var(--text-muted);">Email:</span>
+          <div><a href="mailto:{{ item.reporter_email }}" style="font-weight: 600;">{{ item.reporter_email }}</a></div>
+        </div>
+      </div>
+
+      <a href="mailto:{{ item.reporter_email }}?subject=Lost%20and%20Found%20Campus%20Inquiry%20regarding%20Item%20%23{{ item.item_id }}" class="btn btn-primary" style="width: 100%;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+          <polyline points="22,6 12,13 2,6"></polyline>
+        </svg>
+        Send Email to Student
+      </a>
+    </div>
+
+    <!-- Status Change Action -->
+    {% if current_user.is_authenticated and (current_user.user_id == item.user_id or current_user.role == 'admin') %}
+      <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.5rem; box-shadow: var(--shadow-sm);">
+        <h4 style="font-size: 1rem; font-weight: 700; margin-bottom: 0.75rem;">Manage Report Status</h4>
+        <form action="{{ url_for('claim_item', item_id=item.item_id) }}" method="POST">
+          <div class="form-group">
+            <select name="status" class="form-control" style="margin-bottom: 0.75rem;">
+              <option value="Pending" {% if item.status == 'Pending' %}selected{% endif %}>Pending</option>
+              <option value="Claimed" {% if item.status == 'Claimed' %}selected{% endif %}>Claimed</option>
+              <option value="Resolved" {% if item.status == 'Resolved' %}selected{% endif %}>Resolved</option>
+            </select>
+            <button type="submit" class="btn btn-secondary" style="width: 100%;">Update Status</button>
+          </div>
+        </form>
+      </div>
+    {% endif %}
+
+    <!-- DSA Lookup Telemetry Box -->
+    <div style="background: #0f172a; color: #cbd5e1; border-radius: var(--radius-lg); padding: 1.5rem; border: 1px solid #1e293b;">
+      <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+        <span style="font-size: 1.25rem;">🌲</span>
+        <h4 style="color: #fff; font-size: 1rem; font-weight: 700;">BST Retrieval Telemetry</h4>
+      </div>
+      <p style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 0.75rem;">
+        This record was queried in our in-memory <strong>Binary Search Tree</strong> indexed by Item ID.
+      </p>
+      <div style="font-size: 0.85rem; display: flex; flex-direction: column; gap: 0.35rem; font-family: var(--font-mono);">
+        <div>Key: <strong>#{{ item.item_id }}</strong></div>
+        <div>Comparisons: <strong style="color: #38bdf8;">{{ bst_comps }}</strong></div>
+        <div>Path: <span style="color: #f59e0b;">{{ bst_path|join(" &rarr; ")|safe }}</span></div>
+        <div>Time Complexity: <span style="color: #34d399;">O(log n)</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Matching Results{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+  <span class="badge" style="background:#f3e8ff; color:var(--accent); font-size:0.8rem; margin-bottom:0.5rem;">Intelligent Rule-Based System</span>
+  <h1 style="font-size: 2rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">
+    Identified Lost &amp; Found Matches
+  </h1>
+  <p style="color: var(--text-muted); font-size: 0.95rem;">
+    Our deterministic matching engine continuously scans lost reports against campus recoveries,
+    evaluating category similarity, token overlaps, campus locations, and dates.
+  </p>
+</div>
+
+{% if matches %}
+  {% for match in matches %}
+    <div class="match-card">
+      <div class="match-header">
+        <div style="display:flex; align-items:center; gap:0.75rem;">
+          <span style="font-size:1.25rem;">✨</span>
+          <div>
+            <strong style="color:var(--text-main); font-size:1.05rem;">Match Reference #{{ match.match_id }}</strong>
+            <span style="font-size:0.8rem; color:var(--text-muted); margin-left:0.5rem;">Status: <strong>{{ match.match_status }}</strong></span>
+          </div>
+        </div>
+
+        <div class="match-score-badge">
+          Match Score: 85% - 95%
+        </div>
+      </div>
+
+      <div class="match-split">
+        <!-- Lost Item Panel -->
+        <div class="match-item-panel" style="border-left: 4px solid #ef4444;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+            <span class="badge badge-lost">Lost Report</span>
+            <span style="font-size:0.75rem; color:var(--text-muted);">Item #{{ match.lost_item_id }}</span>
+          </div>
+          <h3 style="font-size:1.15rem; font-weight:700; color:var(--text-main); margin-bottom:0.5rem;">
+            {{ match.lost_name }}
+          </h3>
+          <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.75rem;">
+            <div>📁 Category: <strong>{{ match.lost_category }}</strong></div>
+            <div>📍 Lost Near: <strong>{{ match.lost_location }}</strong></div>
+            <div>📅 Lost Date: <strong>{{ match.lost_date }}</strong></div>
+            <div>👤 Reported By: <strong>{{ match.lost_user_name }}</strong> ({{ match.lost_user_email }})</div>
+          </div>
+          <a href="{{ url_for('item_details', item_id=match.lost_item_id) }}" class="btn btn-outline btn-sm">
+            Inspect Lost Record
+          </a>
+        </div>
+
+        <!-- VS Divider -->
+        <div class="match-vs-divider">
+          <span>⚡</span>
+          <span>VS</span>
+        </div>
+
+        <!-- Found Item Panel -->
+        <div class="match-item-panel" style="border-left: 4px solid #10b981;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+            <span class="badge badge-found">Found Discovery</span>
+            <span style="font-size:0.75rem; color:var(--text-muted);">Item #{{ match.found_item_id }}</span>
+          </div>
+          <h3 style="font-size:1.15rem; font-weight:700; color:var(--text-main); margin-bottom:0.5rem;">
+            {{ match.found_name }}
+          </h3>
+          <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.75rem;">
+            <div>📁 Category: <strong>{{ match.found_category }}</strong></div>
+            <div>📍 Recovered At: <strong>{{ match.found_location }}</strong></div>
+            <div>📅 Found Date: <strong>{{ match.found_date }}</strong></div>
+            <div>👤 Finder: <strong>{{ match.found_user_name }}</strong> ({{ match.found_user_email }})</div>
+          </div>
+          <a href="{{ url_for('item_details', item_id=match.found_item_id) }}" class="btn btn-outline btn-sm">
+            Inspect Found Record
+          </a>
+        </div>
+      </div>
+
+      <!-- Match Reason Highlight Box -->
+      <div class="match-reasons-box">
+        <strong>Match Verification Logic:</strong>
+        <p style="margin-top:0.25rem;">{{ match.match_reason }}</p>
+      </div>
+    </div>
+  {% endfor %}
+{% else %}
+  <div style="background:var(--bg-surface); padding:3.5rem; border-radius:var(--radius-lg); text-align:center; border:1px solid var(--border-color);">
+    <div style="font-size:3rem; margin-bottom:1rem;">🤝</div>
+    <h3 style="font-size:1.35rem; font-weight:700; margin-bottom:0.5rem;">No matches detected yet</h3>
+    <p style="color:var(--text-muted); max-width:480px; margin:0 auto 1.5rem auto;">
+      As soon as students submit corresponding Lost and Found descriptions, the matching system will automatically evaluate them here.
+    </p>
+    <a href="{{ url_for('report_lost') }}" class="btn btn-primary">Report an Item</a>
+  </div>
+{% endif %}
+{% endblock %}

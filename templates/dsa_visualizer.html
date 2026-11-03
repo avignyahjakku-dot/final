@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+
+{% block title %}DSA Interactive Visualizer{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+  <span class="badge" style="background:#eff6ff; color:var(--primary); font-size:0.8rem; margin-bottom:0.5rem;">Academic Demonstration Suite</span>
+  <h1 style="font-size: 2.2rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.35rem;">
+    Data Structures &amp; Algorithms Visualizer
+  </h1>
+  <p style="color: var(--text-muted); font-size: 0.95rem;">
+    Interactive visual workbench showcasing all the data structures and algorithms implemented in our Smart Lost &amp; Found campus engine.
+  </p>
+</div>
+
+<div class="visualizer-container" id="dsa-visualizer-app">
+  <!-- Visualizer Navigation Tabs -->
+  <div class="tabs-nav">
+    <button class="tab-btn active" data-target="panel-sorting">1. Sorting (Bubble, Insertion, Selection)</button>
+    <button class="tab-btn" data-target="panel-searching">2. Searching (Linear &amp; Binary)</button>
+    <button class="tab-btn" data-target="panel-linkedlist">3. Singly Linked List</button>
+    <button class="tab-btn" data-target="panel-bst">4. Binary Search Tree (BST)</button>
+    <button class="tab-btn" data-target="panel-complexity">5. Complexity Analysis Matrix</button>
+  </div>
+
+  <!-- TAB 1: SORTING ALGORITHMS -->
+  <div class="tab-panel" id="panel-sorting" style="display:block;">
+    <div style="margin-bottom:1rem;">
+      <h3 style="font-size:1.25rem; font-weight:700;">Bar-Chart Sorting Visualizer</h3>
+      <p style="font-size:0.875rem; color:var(--text-muted);">
+        Watch how Bubble Sort, Insertion Sort, and Selection Sort organize lost item batches.
+      </p>
+    </div>
+
+    <!-- Controls -->
+    <div class="vis-controls-bar">
+      <div>
+        <label style="font-size:0.8rem; font-weight:600; display:block; margin-bottom:0.25rem;">Select Algorithm</label>
+        <select id="sort-algo-select" class="form-control" style="padding:0.4rem 0.75rem; width:180px;">
+          <option value="bubble">Bubble Sort</option>
+          <option value="insertion">Insertion Sort</option>
+          <option value="selection">Selection Sort</option>
+        </select>
+      </div>
+
+      <div style="display:flex; gap:0.5rem; align-self:flex-end;">
+        <button id="btn-sort-start" class="btn btn-primary btn-sm">▶ Run Sort</button>
+        <button id="btn-sort-reset" class="btn btn-secondary btn-sm">↺ Randomize Array</button>
+      </div>
+
+      <div style="margin-left:auto; display:flex; gap:0.5rem;">
+        <span class="badge" style="background:#fef3c7; color:#b45309;">Comparing: Yellow</span>
+        <span class="badge" style="background:#fee2e2; color:#b91c1c;">Swapping: Red</span>
+        <span class="badge" style="background:#d1fae5; color:#047857;">Sorted: Green</span>
+      </div>
+    </div>
+
+    <!-- Animation Canvas Viewport -->
+    <div class="vis-viewport" id="sort-bars-container"></div>
+
+    <!-- Live Execution Logger -->
+    <div class="vis-log-box" id="sort-log-box">
+      <div>&gt; Ready. Choose an algorithm and click 'Run Sort'.</div>
+    </div>
+  </div>
+
+  <!-- TAB 2: SEARCHING ALGORITHMS -->
+  <div class="tab-panel" id="panel-searching" style="display:none;">
+    <div style="margin-bottom:1rem;">
+      <h3 style="font-size:1.25rem; font-weight:700;">Linear Search vs Binary Search</h3>
+      <p style="font-size:0.875rem; color:var(--text-muted);">
+        Compare sequential scanning against divide-and-conquer binary search on ordered item records.
+      </p>
+    </div>
+
+    <div class="vis-controls-bar">
+      <div>
+        <label style="font-size:0.8rem; font-weight:600; display:block; margin-bottom:0.25rem;">Target Value</label>
+        <input type="number" id="search-target-input" class="form-control" value="64" style="width:120px; padding:0.4rem 0.75rem;">
+      </div>
+
+      <div style="display:flex; gap:0.5rem; align-self:flex-end;">
+        <button id="btn-linear-search" class="btn btn-primary btn-sm">Linear Search (O(n))</button>
+        <button id="btn-binary-search" class="btn btn-success btn-sm">Binary Search (O(log n))</button>
+      </div>
+    </div>
+
+    <div style="background:#0f172a; padding:2rem; border-radius:var(--radius-md); display:flex; flex-wrap:wrap; justify-content:center; gap:0.75rem;" id="search-cells-container"></div>
+
+    <div class="vis-log-box" id="search-log-box">
+      <div>&gt; Enter a target value and select Linear or Binary Search.</div>
+    </div>
+  </div>
+
+  <!-- TAB 3: SINGLY LINKED LIST -->
+  <div class="tab-panel" id="panel-linkedlist" style="display:none;">
+    <div style="margin-bottom:1rem;">
+      <h3 style="font-size:1.25rem; font-weight:700;">Singly Linked List Interactive Chain</h3>
+      <p style="font-size:0.875rem; color:var(--text-muted);">
+        Used in the system to store recently reported lost items. Notice O(1) head insertion!
+      </p>
+    </div>
+
+    <div class="vis-controls-bar">
+      <div>
+        <label style="font-size:0.8rem; font-weight:600; display:block; margin-bottom:0.25rem;">New Item Name</label>
+        <input type="text" id="ll-val-input" class="form-control" placeholder="e.g. Blue Umbrella" style="width:200px; padding:0.4rem 0.75rem;">
+      </div>
+
+      <div style="display:flex; gap:0.5rem; align-self:flex-end;">
+        <button id="btn-ll-insert-head" class="btn btn-primary btn-sm">+ Insert at Head (O(1))</button>
+        <button id="btn-ll-insert-tail" class="btn btn-secondary btn-sm">+ Insert at Tail (O(n))</button>
+        <button id="btn-ll-delete" class="btn btn-danger btn-sm">- Delete from Head</button>
+      </div>
+    </div>
+
+    <div style="background:#0f172a; padding:2.5rem 1.5rem; border-radius:var(--radius-md); display:flex; align-items:center; gap:0.75rem; overflow-x:auto; min-height:120px;" id="ll-nodes-container"></div>
+
+    <div class="vis-log-box" id="ll-log-box">
+      <div>&gt; Linked list initialized. Perform operations using the buttons above.</div>
+    </div>
+  </div>
+
+  <!-- TAB 4: BINARY SEARCH TREE (BST) -->
+  <div class="tab-panel" id="panel-bst" style="display:none;">
+    <div style="margin-bottom:1rem;">
+      <h3 style="font-size:1.25rem; font-weight:700;">Binary Search Tree (BST) Canvas Visualizer</h3>
+      <p style="font-size:0.875rem; color:var(--text-muted);">
+        Interactive graphical tree indexed by Item ID. Every left child &lt; parent &lt; right child.
+      </p>
+    </div>
+
+    <div class="vis-controls-bar">
+      <div>
+        <label style="font-size:0.8rem; font-weight:600; display:block; margin-bottom:0.25rem;">Item ID (Key)</label>
+        <input type="number" id="bst-key-input" class="form-control" placeholder="e.g. 55" style="width:110px; padding:0.4rem 0.75rem;">
+      </div>
+
+      <div>
+        <label style="font-size:0.8rem; font-weight:600; display:block; margin-bottom:0.25rem;">Item Label</label>
+        <input type="text" id="bst-name-input" class="form-control" placeholder="e.g. HP Laptop" style="width:160px; padding:0.4rem 0.75rem;">
+      </div>
+
+      <div style="display:flex; gap:0.5rem; align-self:flex-end;">
+        <button id="btn-bst-insert" class="btn btn-primary btn-sm">+ Insert Node (O(log n))</button>
+        <button id="btn-bst-search" class="btn btn-warning btn-sm" style="color:#000;">🔍 Search Key</button>
+        <button id="btn-bst-inorder" class="btn btn-secondary btn-sm">Inorder Traversal</button>
+      </div>
+    </div>
+
+    <!-- Tree Canvas -->
+    <canvas id="bst-canvas" class="vis-tree-canvas" width="900" height="380"></canvas>
+
+    <div class="vis-log-box" id="bst-log-box">
+      <div>&gt; BST rendered with sample campus item IDs. Try inserting or searching for an ID!</div>
+    </div>
+  </div>
+
+  <!-- TAB 5: COMPLEXITY ANALYSIS MATRIX -->
+  <div class="tab-panel" id="panel-complexity" style="display:none;">
+    <div style="margin-bottom:1.5rem;">
+      <h3 style="font-size:1.25rem; font-weight:700;">DSA Complexity &amp; Campus Application Summary</h3>
+      <p style="font-size:0.875rem; color:var(--text-muted);">
+        Theoretical and practical justification for every Data Structure and Algorithm implemented in this project.
+      </p>
+    </div>
+
+    <div class="table-responsive">
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>Algorithm / Data Structure</th>
+            <th>Best Case Time</th>
+            <th>Average Case Time</th>
+            <th>Worst Case Time</th>
+            <th>Space Complexity</th>
+            <th>Campus Application in this Project</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Arrays</strong></td>
+            <td>O(1) (index)</td>
+            <td>O(n) (lookup)</td>
+            <td>O(n)</td>
+            <td>O(n)</td>
+            <td>Stores item records retrieved from MySQL; foundation for sorting and search algorithms.</td>
+          </tr>
+          <tr>
+            <td><strong>Linear Search</strong></td>
+            <td>O(1)</td>
+            <td>O(n)</td>
+            <td>O(n)</td>
+            <td>O(1)</td>
+            <td>Scans item names, descriptions, categories, and campus locations without requiring sorted order.</td>
+          </tr>
+          <tr>
+            <td><strong>Binary Search</strong></td>
+            <td>O(1)</td>
+            <td>O(log n)</td>
+            <td>O(log n)</td>
+            <td>O(1)</td>
+            <td>High-speed report retrieval by numerical Item ID after sorting the records.</td>
+          </tr>
+          <tr>
+            <td><strong>Bubble Sort</strong></td>
+            <td>O(n) (optimized)</td>
+            <td>O(n²)</td>
+            <td>O(n²)</td>
+            <td>O(1)</td>
+            <td>Sorts campus reports alphabetically or by date; simple adjacent swapping logic.</td>
+          </tr>
+          <tr>
+            <td><strong>Insertion Sort</strong></td>
+            <td>O(n)</td>
+            <td>O(n²)</td>
+            <td>O(n²)</td>
+            <td>O(1)</td>
+            <td>Efficient when new reports are appended continuously throughout the day into an existing list.</td>
+          </tr>
+          <tr>
+            <td><strong>Selection Sort</strong></td>
+            <td>O(n²)</td>
+            <td>O(n²)</td>
+            <td>O(n²)</td>
+            <td>O(1)</td>
+            <td>Minimizes memory writes (guarantees at most O(n) swaps).</td>
+          </tr>
+          <tr>
+            <td><strong>Singly Linked List</strong></td>
+            <td>O(1) (head insert)</td>
+            <td>O(n) (traversal)</td>
+            <td>O(n)</td>
+            <td>O(n)</td>
+            <td>Maintains 'Recently Reported Items' feed dynamically with instantaneous head insertion.</td>
+          </tr>
+          <tr>
+            <td><strong>Binary Search Tree (BST)</strong></td>
+            <td>O(log n)</td>
+            <td>O(log n)</td>
+            <td>O(n)</td>
+            <td>O(n)</td>
+            <td>Indexes all campus items by ID; Inorder Traversal outputs sorted reports in linear time.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Campus Recovery Portal{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero-tag">College Campus Recovery Network</div>
+  <h1 class="hero-title">Misplaced Something on Campus? <br>Let's Get It Back.</h1>
+  <p class="hero-subtitle">
+    Report lost belongings, register items you have found, and let our intelligent
+    DSA-driven search and matching system quickly reunite owners with their valuables.
+  </p>
+
+  <form action="{{ url_for('search') }}" method="GET" class="hero-search-box">
+    <input type="text" name="q" class="hero-search-input" placeholder="Search by item name (e.g., 'Dell laptop', 'blue bottle', 'ID card')..." required>
+    <button type="submit" class="btn btn-primary">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      Search
+    </button>
+  </form>
+
+  <div class="hero-actions">
+    <a href="{{ url_for('report_lost') }}" class="btn btn-danger btn-lg">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></line>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      Report Lost Item
+    </a>
+    <a href="{{ url_for('report_found') }}" class="btn btn-success btn-lg">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+      </svg>
+      Report Found Item
+    </a>
+    <a href="{{ url_for('dsa_visualizer') }}" class="btn btn-secondary btn-lg" style="background:rgba(255,255,255,0.15); color:#fff; border-color:rgba(255,255,255,0.2);">
+      Explore DSA Visualizer
+    </a>
+  </div>
+</section>
+
+<!-- Quick Stats Section -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon blue">📦</div>
+    <div>
+      <div class="stat-number">{{ total_items }}</div>
+      <div class="stat-label">Total Campus Reports</div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon amber">🔍</div>
+    <div>
+      <div class="stat-number">{{ lost_count }}</div>
+      <div class="stat-label">Lost Items Pending</div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon green">✅</div>
+    <div>
+      <div class="stat-number">{{ found_count }}</div>
+      <div class="stat-label">Found Items Logged</div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon purple">🤝</div>
+    <div>
+      <div class="stat-number">{{ reunited_count }}</div>
+      <div class="stat-label">Successfully Reunited</div>
+    </div>
+  </div>
+</div>
+
+<!-- Recently Reported Items (Retrieved via Singly Linked List) -->
+<section style="margin-top:2rem;">
+  <div class="section-header">
+    <div>
+      <h2 class="section-title">Recently Reported Items</h2>
+      <p style="color:var(--text-muted); font-size:0.875rem;">
+        Dynamically retrieved from head of in-memory <strong>Singly Linked List</strong> in O(1) time
+      </p>
+    </div>
+    <a href="{{ url_for('search') }}" class="btn btn-outline btn-sm">Browse All Items &rarr;</a>
+  </div>
+
+  {% if recent_items %}
+    <div class="items-grid">
+      {% for item in recent_items %}
+        <div class="item-card">
+          <div class="item-card-image">
+            {% if item.image_path %}
+              <img src="{{ url_for('uploaded_file', filename=item.image_path) }}" alt="{{ item.item_name }}">
+            {% else %}
+              <div class="item-placeholder-icon">
+                {% if item.category == 'Electronics' %}💻
+                {% elif item.category == 'Bags & Wallets' %}👛
+                {% elif item.category == 'Books & Notes' %}📚
+                {% elif item.category == 'ID & Cards' %}🪪
+                {% else %}📦{% endif %}
+              </div>
+            {% endif %}
+            
+            <div class="item-card-badge">
+              {% if item.report_type == 'Lost' %}
+                <span class="badge badge-lost">Lost</span>
+              {% else %}
+                <span class="badge badge-found">Found</span>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="item-card-body">
+            <div class="item-category">{{ item.category }}</div>
+            <h3 class="item-title">{{ item.item_name }}</h3>
+            <p class="item-desc">{{ item.description }}</p>
+
+            <div class="item-meta">
+              <div class="item-meta-row">
+                <span>📍 Location:</span>
+                <strong>{{ item.location }}</strong>
+              </div>
+              <div class="item-meta-row">
+                <span>📅 Date:</span>
+                <span>{{ item.date }}</span>
+              </div>
+              <div class="item-meta-row">
+                <span>Status:</span>
+                <span class="badge {% if item.status == 'Pending' %}badge-pending{% elif item.status == 'Claimed' %}badge-claimed{% else %}badge-resolved{% endif %}">
+                  {{ item.status }}
+                </span>
+              </div>
+            </div>
+
+            <a href="{{ url_for('item_details', item_id=item.item_id) }}" class="btn btn-outline btn-sm" style="width:100%;">
+              View Full Details &amp; Contact
+            </a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div style="background:var(--bg-surface); padding:3rem; border-radius:var(--radius-lg); text-align:center; border:1px solid var(--border-color);">
+      <p style="color:var(--text-muted); font-size:1.1rem; margin-bottom:1rem;">No reports currently available.</p>
+      <a href="{{ url_for('report_lost') }}" class="btn btn-primary">Submit First Report</a>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}
